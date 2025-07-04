@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 import base64
+import csv
 from PIL import Image, ImageTk
 import io
 from client.client_image import ClientImage
@@ -36,7 +37,7 @@ class InterfaceMensalidade:
         btn_excluir = tk.Button(frame_form, text="Excluir Selecionado", command=self.excluir_mensalidade)
         btn_excluir.grid(row=4, column=0, columnspan=2, pady=5)
 
-        # --- Filtro de Data com Calendário ---
+        # --- Filtro de Data + Exportar CSV ---
         frame_filtro = tk.Frame(root)
         frame_filtro.pack(pady=5)
 
@@ -52,6 +53,9 @@ class InterfaceMensalidade:
 
         btn_filtrar = tk.Button(frame_filtro, text="Filtrar por Data", command=self.filtrar_por_data)
         btn_filtrar.grid(row=0, column=4, padx=10)
+
+        btn_exportar = tk.Button(frame_filtro, text="Exportar CSV", command=self.exportar_csv)
+        btn_exportar.grid(row=0, column=5, padx=10)
 
         # --- Lista de Registros ---
         frame_lista = tk.Frame(root)
@@ -176,3 +180,32 @@ class InterfaceMensalidade:
 
         except Exception as e:
             messagebox.showerror("Erro", f"Erro no filtro: {e}")
+
+    def exportar_csv(self):
+        if not self.registros:
+            messagebox.showinfo("Sem dados", "Não há registros para exportar.")
+            return
+
+        caminho = filedialog.asksaveasfilename(defaultextension=".csv",
+                                                filetypes=[("CSV files", "*.csv")],
+                                                title="Salvar como")
+        if not caminho:
+            return
+
+        try:
+            with open(caminho, mode='w', newline='', encoding='utf-8') as file:
+                writer = csv.writer(file)
+                writer.writerow(["Nome do Associado", "Valor (R$)", "Data"])
+
+                for r in self.registros:
+                    nome = r.get("nome_associado", "")
+                    valor = r.get("valor_mensalidade", 0)
+                    data = r.get("data_transacao")
+                    if isinstance(data, dict) and "$date" in data:
+                        data = data["$date"][:10]
+                    writer.writerow([nome, f"{valor:.2f}", data])
+
+            messagebox.showinfo("Sucesso", f"Arquivo CSV exportado com sucesso!\n{caminho}")
+
+        except Exception as e:
+            messagebox.showerror("Erro", f"Erro ao exportar CSV: {e}")
