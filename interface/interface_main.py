@@ -3,6 +3,7 @@ from tkinter import filedialog, messagebox, ttk
 import base64
 from PIL import Image, ImageTk
 import io
+from client.client_image import ClientImage  # Certifique-se de que esse import está certo
 
 class InterfaceMensalidade:
     def __init__(self, root, service):
@@ -31,6 +32,9 @@ class InterfaceMensalidade:
         btn_salvar = tk.Button(frame_form, text="Salvar Mensalidade", command=self.salvar_mensalidade)
         btn_salvar.grid(row=3, column=0, columnspan=2, pady=10)
 
+        btn_excluir = tk.Button(frame_form, text="Excluir Selecionado", command=self.excluir_mensalidade)
+        btn_excluir.grid(row=4, column=0, columnspan=2, pady=5)
+
         # --- Lista de Registros ---
         frame_lista = tk.Frame(root)
         frame_lista.pack(fill="both", expand=True)
@@ -41,13 +45,15 @@ class InterfaceMensalidade:
         self.tabela.heading("data", text="Data")
         self.tabela.pack(fill="both", expand=True, padx=10, pady=10)
 
+        # Evento de clique duplo para visualizar imagem
+        self.tabela.bind("<Double-1>", self.ver_imagem)
+
         self.carregar_registros()
 
     def selecionar_imagem(self):
         caminho = filedialog.askopenfilename(filetypes=[("Imagens", "*.png *.jpg *.jpeg")])
         if caminho:
-            with open(caminho, "rb") as img_file:
-                self.imagem_base64 = base64.b64encode(img_file.read()).decode("utf-8")
+            self.imagem_base64 = ClientImage.image_to_base64(caminho)
             messagebox.showinfo("Imagem", "Imagem carregada com sucesso!")
 
     def salvar_mensalidade(self):
@@ -70,19 +76,55 @@ class InterfaceMensalidade:
             messagebox.showerror("Erro", f"Erro ao salvar: {e}")
 
     def carregar_registros(self):
+        self.registros = self.service.lister()
         for item in self.tabela.get_children():
             self.tabela.delete(item)
 
-        try:
-            registros = self.service.lister()
-            for r in registros:
-                nome = r.get("nome_associado", "")
-                valor = r.get("valor_mensalidade", 0)
-                data = r.get("data_transacao", "")
-                if isinstance(data, dict) and "$date" in data:
-                    data = data["$date"][:10]
-                self.tabela.insert("", "end", values=(nome, f"R$ {valor:.2f}", data))
-        except Exception as e:
-            print(f"Erro ao carregar registros: {e}")
+        for r in self.registros:
+            nome = r.get("nome_associado", "")
+            valor = r.get("valor_mensalidade", 0)
+            data = r.get("data_transacao", "")
+            if isinstance(data, dict) and "$date" in data:
+                data = data["$date"][:10]
+            self.tabela.insert("", "end", values=(nome, f"R$ {valor:.2f}", data))
 
+    def excluir_mensalidade(self):
+        item = self.tabela.selection()
+        if not item:
+            messagebox.showwarning("Selecione", "Selecione um item para excluir.")
+            return
 
+        index = self.tabela.index(item)
+        if index >= len(self.registros):
+            return
+
+        _id = self.registros[index].get("_id")
+        if messagebox.askyesno("Confirmar", "Deseja realmente excluir esta mensalidade?"):
+            self.service.supprimer(str(_id))
+            self.carregar_registros()
+
+    def ver_imagem(self, event):
+        item = self.tabela.selection()
+        if not item:
+            return
+
+        index = self.tabela.index(item)
+        if index >= len(self.registros):
+            return
+
+        registro = self.registros[index]
+        imagem_b64 = registro.get("imagem_comprovante")
+        if not imagem_b64:
+            messagebox.showinfo("Sem imagem", "Este registro não possui comprovante.")
+            return
+
+        imagem = ClientImage.base64_to_image(imagem_b64)
+
+        janela = tk.Toplevel(self.root)
+        janela.title("Comprovante")
+        imagem.thumbnail((400, 400))
+        foto = ImageTk.PhotoImage(imagem)
+
+        label = tk.Label(janela, image=foto)
+        label.image = foto  # necessário manter referência para não apagar da memória
+        label.pack(padx=10, pady=10)

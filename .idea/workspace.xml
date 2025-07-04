@@ -5,12 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="49e390cf-415f-4feb-9588-25bd159feafe" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/interface/interface_main.py" beforeDir="false" afterPath="$PROJECT_DIR$/interface/interface_main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/oad/oad_payment.py" beforeDir="false" afterPath="$PROJECT_DIR$/oad/oad_payment.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/service_payment.py" beforeDir="false" afterPath="$PROJECT_DIR$/service/service_payment.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/usine/usine_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/usine/usine_service.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -97,7 +92,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1751657050342</updated>
-      <workItem from="1751657051353" duration="3629000" />
+      <workItem from="1751657051353" duration="3965000" />
     </task>
     <servers />
   </component>
@@ -106,6 +101,6 @@
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/RotaryPaymentsManager$client_image.coverage" NAME="client_image Coverage Results" MODIFIED="1751660227547" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/client" />
-    <SUITE FILE_PATH="coverage/RotaryPaymentsManager$main.coverage" NAME="main Coverage Results" MODIFIED="1751660850065" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/RotaryPaymentsManager$main.coverage" NAME="main Coverage Results" MODIFIED="1751661165720" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
