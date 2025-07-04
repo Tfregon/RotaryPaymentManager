@@ -3,7 +3,9 @@ from tkinter import filedialog, messagebox, ttk
 import base64
 from PIL import Image, ImageTk
 import io
-from client.client_image import ClientImage  # Certifique-se de que esse import está certo
+from client.client_image import ClientImage
+from datetime import datetime
+from tkcalendar import DateEntry
 
 class InterfaceMensalidade:
     def __init__(self, root, service):
@@ -11,7 +13,6 @@ class InterfaceMensalidade:
         self.service = service
         self.root.title("Rotary Payment Manager")
         self.root.geometry("800x600")
-
         self.imagem_base64 = None
 
         # --- Formulário ---
@@ -35,6 +36,23 @@ class InterfaceMensalidade:
         btn_excluir = tk.Button(frame_form, text="Excluir Selecionado", command=self.excluir_mensalidade)
         btn_excluir.grid(row=4, column=0, columnspan=2, pady=5)
 
+        # --- Filtro de Data com Calendário ---
+        frame_filtro = tk.Frame(root)
+        frame_filtro.pack(pady=5)
+
+        tk.Label(frame_filtro, text="De:").grid(row=0, column=0)
+        self.data_de = DateEntry(frame_filtro, width=12, background='darkblue',
+                                 foreground='white', borderwidth=2, date_pattern='dd/mm/yyyy')
+        self.data_de.grid(row=0, column=1, padx=5)
+
+        tk.Label(frame_filtro, text="Até:").grid(row=0, column=2)
+        self.data_ate = DateEntry(frame_filtro, width=12, background='darkblue',
+                                  foreground='white', borderwidth=2, date_pattern='dd/mm/yyyy')
+        self.data_ate.grid(row=0, column=3, padx=5)
+
+        btn_filtrar = tk.Button(frame_filtro, text="Filtrar por Data", command=self.filtrar_por_data)
+        btn_filtrar.grid(row=0, column=4, padx=10)
+
         # --- Lista de Registros ---
         frame_lista = tk.Frame(root)
         frame_lista.pack(fill="both", expand=True)
@@ -45,7 +63,6 @@ class InterfaceMensalidade:
         self.tabela.heading("data", text="Data")
         self.tabela.pack(fill="both", expand=True, padx=10, pady=10)
 
-        # Evento de clique duplo para visualizar imagem
         self.tabela.bind("<Double-1>", self.ver_imagem)
 
         self.carregar_registros()
@@ -71,15 +88,12 @@ class InterfaceMensalidade:
             self.entrada_valor.delete(0, tk.END)
             self.imagem_base64 = None
             self.carregar_registros()
-
         except Exception as e:
             messagebox.showerror("Erro", f"Erro ao salvar: {e}")
 
     def carregar_registros(self):
         self.registros = self.service.lister()
-        for item in self.tabela.get_children():
-            self.tabela.delete(item)
-
+        self.tabela.delete(*self.tabela.get_children())
         for r in self.registros:
             nome = r.get("nome_associado", "")
             valor = r.get("valor_mensalidade", 0)
@@ -126,5 +140,39 @@ class InterfaceMensalidade:
         foto = ImageTk.PhotoImage(imagem)
 
         label = tk.Label(janela, image=foto)
-        label.image = foto  # necessário manter referência para não apagar da memória
+        label.image = foto
         label.pack(padx=10, pady=10)
+
+    def filtrar_por_data(self):
+        data_inicio = self.data_de.get_date()
+        data_fim = self.data_ate.get_date()
+
+        try:
+            todos = self.service.lister()
+            filtrados = []
+
+            for r in todos:
+                data = r.get("data_transacao")
+                if isinstance(data, dict) and "$date" in data:
+                    data = datetime.strptime(data["$date"][:10], "%Y-%m-%d")
+                elif isinstance(data, datetime):
+                    pass
+                else:
+                    continue
+
+                if data_inicio <= data.date() <= data_fim:
+                    filtrados.append(r)
+
+            self.registros = filtrados
+            self.tabela.delete(*self.tabela.get_children())
+
+            for r in filtrados:
+                nome = r.get("nome_associado", "")
+                valor = r.get("valor_mensalidade", 0)
+                data = r.get("data_transacao")
+                if isinstance(data, dict) and "$date" in data:
+                    data = data["$date"][:10]
+                self.tabela.insert("", "end", values=(nome, f"R$ {valor:.2f}", data))
+
+        except Exception as e:
+            messagebox.showerror("Erro", f"Erro no filtro: {e}")
