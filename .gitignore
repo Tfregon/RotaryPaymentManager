@@ -1,0 +1,32 @@
+
+---
+
+## 🔒 **Conteúdo para `.gitignore`**
+
+```gitignore
+# Ambientes virtuais
+.venv/
+venv/
+
+# Arquivos do PyCharm
+.idea/
+
+# Compilados Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Arquivos do sistema
+.DS_Store
+Thumbs.db
+
+# Executáveis
+*.exe
+*.app
+*.spec
+dist/
+build/
+
+# Outros
+.env
