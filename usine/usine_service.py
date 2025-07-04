@@ -1,9 +1,9 @@
-from oads.oad_mensalidade import OADMensalidade
-from services.service_mensalidade import ServiceMensalidade
+from oad.oad_payment import OADPayment
+from service.service_payment import ServicePayment
 
 class UsineService:
     @staticmethod
     def creer_service_mensalidade():
-        uri = "SUA_STRING_DE_CONEXÃO_MONGODB_ATLAS"
-        oad = OADMensalidade(uri)
-        return ServiceMensalidade(oad)
+        uri = "mongodb+srv://root:root@cluster0.68qlr9t.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+        oad = OADPayment(uri)
+        return ServicePayment(oad)

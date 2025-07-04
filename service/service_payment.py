@@ -1,4 +1,4 @@
-class ServiceMensalidade:
+class ServicePayment:
     def __init__(self, oad_mensalidade):
         self.oad = oad_mensalidade
 
